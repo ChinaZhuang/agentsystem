@@ -7,8 +7,8 @@ public class UsersAction {
 	
 	public String admin(){
 		
-		
-		return "admin";
+		//可以吗		
+return "admin";
 	}
 }
 //http://www.thinksaas.cn/topics/0/501/501006.html
