@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                           http://www.springframework.org/schema/aop 
+                           http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+                           http://www.springframework.org/schema/context 
+                           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+                           http://www.springframework.org/schema/tx 
+                           http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+     
+	<bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"
+			value="com.mysql.jdbc.Driver">
+		</property>
+		<property name="url" value="jdbc:mysql://localhost:3306/agentsystem"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="accp"></property>
+	</bean>
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQLDialect
+				</prop>
+			</props>
+		</property>
+		<property name="packagesToScan">
+ 		<list>
+ 			<value>org.agent.pojo</value>
+ 		</list>
+ 	</property>
+	</bean>  
+	<!-- 注解支持 -->  
+<context:annotation-config/>  
+<!-- 组件扫描com.test目录下的所有文件 -->  <!--在action，service，dao这三层的实现类中
+分别对应注解Controller，Service，Repository如果你不想逻辑上有所区分就直接用Component。   -->
+<context:component-scan base-package="cn.zhs"/> 
+	<!--  配置事物-->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+     	<property name="sessionFactory">
+     		<ref bean="sessionFactory"/> 
+     	</property>
+     </bean>
+     <tx:advice transaction-manager="transactionManager" id="tx">
+     	<tx:attributes>
+     		<tx:method name="save*" read-only="false"/>
+     		<tx:method name="update*" read-only="false"/>
+     		<tx:method name="delete*" read-only="false"/>
+     		<tx:method name="get*" read-only="true"/>
+     		<tx:method name="Person*" read-only="true"/>
+     		<tx:method name="add" read-only="false"/>
+     		<tx:method name="find*" read-only="true"/>
+     	</tx:attributes>
+     </tx:advice>
+     
+     <aop:config>
+     	<aop:pointcut expression="execution(* cn.zhs.service.impl.*.*(..))" id="perform"/>
+     	<aop:advisor advice-ref="tx" pointcut-ref="perform"/>
+     </aop:config>                  
+</beans>
